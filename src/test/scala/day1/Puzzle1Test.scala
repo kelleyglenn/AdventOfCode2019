@@ -4,15 +4,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class Puzzle1Test extends AnyFlatSpec {
   behavior of "calculateRequiredFuel"
-  it should "handle single values" in {
-    assert(Puzzle1.calculateRequiredFuel(12) == 2)
-    assert(Puzzle1.calculateRequiredFuel(14) == 2)
-    assert(Puzzle1.calculateRequiredFuel(1969) == 654)
-    assert(Puzzle1.calculateRequiredFuel(100756) == 33583)
-  }
-
   it should "handle a collection of values" in {
-    assert(Puzzle1.calculateRequiredFuel(Seq(12)) == (2))
+    assert(Puzzle1.calculateRequiredFuel(Seq(12)) == 2)
     assert(Puzzle1.calculateRequiredFuel(Seq(12, 14)) == (2 + 2))
     assert(Puzzle1.calculateRequiredFuel(Seq(12, 14, 1969, 100756)) == (2 + 2 + 654 + 33583))
   }

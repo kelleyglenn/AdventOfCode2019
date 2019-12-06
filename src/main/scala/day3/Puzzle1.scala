@@ -18,7 +18,7 @@ object Puzzle1 {
 
   def sharedPointClosestToOrigin(a: Set[(Int, Int)], b: Set[(Int, Int)]): (Int, Int) = {
     val shared = a.intersect(b).toSeq
-    shared.zip(shared.map(manhattanDistance(_))).sortBy(_._2).head._1
+    shared.zip(shared.map(manhattanDistance)).minBy(_._2)._1
   }
 
   def manhattanDistance(a: (Int, Int)): Int = {
@@ -26,9 +26,7 @@ object Puzzle1 {
   }
 
   def lineStringToPath(line: String): Seq[(Direction.Value, Int)] = {
-    line.split(',').map { (s: String) =>
-      (Direction.withName(s.head.toString), s.tail.toInt)
-    }.toSeq
+    line.split(',').map { s => (Direction.withName(s.head.toString), s.tail.toInt) }.toSeq
   }
 
   def distanceClosestSharedPointFromStrings(line1: String, line2: String): Int = {

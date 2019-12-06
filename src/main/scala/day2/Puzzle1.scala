@@ -1,6 +1,7 @@
 package day2
 
 object Puzzle1 {
+  @scala.annotation.tailrec
   def process(program: Array[Int], currIdx: Int): Array[Int] = {
     val op: Int = program(currIdx)
     if (op == 1 || op == 2) {

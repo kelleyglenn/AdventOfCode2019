@@ -2,7 +2,7 @@ package day3
 
 object Puzzle2 {
   def lineStringToPath(line: String): Seq[(Direction.Value, Int)] = {
-    line.split(',').map { (s: String) =>
+    line.split(',').map { s: String =>
       (Direction.withName(s.head.toString), s.tail.toInt)
     }.toSeq
   }
@@ -24,7 +24,9 @@ object Puzzle2 {
 
   def sharedPointWithFewestSteps(a: Map[(Int, Int), Int], b: Map[(Int, Int), Int]): Int = {
     val sharedKeys = a.keySet.intersect(b.keySet)
-    sharedKeys.map((k: (Int, Int)) => {a.get(k).get + b.get(k).get}).toSeq.sorted.head
+    sharedKeys.map(k => {
+      a(k) + b(k)
+    }).min
   }
 
   def distanceClosestSharedPointFromStrings(line1: String, line2: String): Int = {

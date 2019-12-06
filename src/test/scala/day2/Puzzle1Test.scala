@@ -6,7 +6,7 @@ class Puzzle1Test extends AnyFlatSpec {
   behavior of "process"
   it should "handle no op" in {
     val program = Array(99)
-    assert(Puzzle1.process(program, 0) == program)
+    assert(Puzzle1.process(program, 0) sameElements program)
   }
 
   it should "handle simple addition" in {
@@ -45,8 +45,6 @@ class Puzzle1Test extends AnyFlatSpec {
   }
 
   def findInputsForTotal(origProgram: Array[Int], total: Int): Option[(Int, Int)] = {
-    val nounIdx: Int = 1
-    val verbIdx: Int = 2
     val totalToInputs: Map[Int, (Int, Int)] =
       (for (noun <- 0 to 99; verb <- 0 to 99) yield createMapEntryFromProgram(origProgram, noun, verb)).toMap
     assert(totalToInputs.size == 10000)
@@ -57,6 +55,6 @@ class Puzzle1Test extends AnyFlatSpec {
     val currProgram: Array[Int] = origProgram.clone()
     currProgram(1) = noun
     currProgram(2) = verb
-    (Puzzle1.process(currProgram, 0).head -> (noun, verb))
+    Puzzle1.process(currProgram, 0).head -> (noun, verb)
   }
 }
