@@ -29,7 +29,9 @@ object Puzzle1 {
   }
 
   def distanceBetweenNodes(m: Map[String, String], a: String, b: String): Int = {
-    if (setOfAncestors(m, a).contains(b)) distanceToAncestor(m, a, b) else if (setOfAncestors(m, b).contains(a)) distanceToAncestor(m, b, a) else
-      setOfCommonAncestorsWithDistances(m, a, b).map(x => x._2 + x._3).min
+    // Make sure to handle the case where one is the ancestor of the other
+    if (setOfAncestors(m, a).contains(b)) distanceToAncestor(m, a, b)
+    else if (setOfAncestors(m, b).contains(a)) distanceToAncestor(m, b, a)
+    else setOfCommonAncestorsWithDistances(m, a, b).map(x => x._2 + x._3).min
   }
 }

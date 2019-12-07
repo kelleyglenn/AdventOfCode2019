@@ -12,21 +12,30 @@ class Puzzle1Test extends AnyFlatSpec {
     })
   }
 
-  def parentChildPairsToChildParentMap(pcs: Seq[(String, String)]): Map[String, String] = {
-    pcs.map(_.swap).toMap
+  behavior of "stringsToParentChildPairs"
+  it should "handle empty" in {
+    assert(stringsToParentChildPairs(Seq.empty) == Seq.empty)
+  }
+
+  it should "handle one" in {
+    assert(stringsToParentChildPairs(Seq("A)B")) == Seq(("A", "B")))
+  }
+
+  it should "handle two" in {
+    assert(stringsToParentChildPairs(Seq("COM)B", "B)C")) == Seq(("COM", "B"), ("B", "C")))
   }
 
   class SetupData {
     val exampleSeq: Seq[String] = Seq("COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L")
     val pcs: Seq[(String, String)] = stringsToParentChildPairs(exampleSeq)
-    val m: Map[String, String] = parentChildPairsToChildParentMap(pcs)
+    val m: Map[String, String] = pcs.map(_.swap).toMap
   }
 
   class SetupPuzzleData {
     val bufferedSource: BufferedSource = Source.fromURL(getClass.getResource("/day6/input.txt"))
     val puzzleSeq: Seq[String] = bufferedSource.getLines.toSeq
     val puzzlePCs: Seq[(String, String)] = stringsToParentChildPairs(puzzleSeq)
-    val puzzleMap: Map[String, String] = parentChildPairsToChildParentMap(puzzlePCs)
+    val puzzleMap: Map[String, String] = puzzlePCs.map(_.swap).toMap
     bufferedSource.close()
   }
 

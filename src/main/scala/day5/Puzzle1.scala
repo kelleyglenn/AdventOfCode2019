@@ -2,7 +2,6 @@ package day5
 
 object Puzzle1 {
 
-
   @scala.annotation.tailrec
   def process(program: Array[Int], currIdx: Int, inputs: Seq[Int] = Seq.empty, runningOut: Seq[Int] = Seq.empty):
   (Array[Int], Seq[Int]) = {
