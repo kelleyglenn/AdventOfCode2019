@@ -5,7 +5,7 @@ import java.util.concurrent.BlockingQueue
 object Puzzle1 {
 
   class Computer(val memory: Array[Long], val input: BlockingQueue[Long] = null, val output: BlockingQueue[Long] = null,
-                 val startingPC: Int = 0) extends Thread {
+                 val startingPC: Int = 0) extends Thread("Computer") {
     private var endReached: Boolean = false
     private var pc: Int = startingPC
     private var relativeBase: Int = 0
