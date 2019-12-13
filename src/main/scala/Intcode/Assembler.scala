@@ -69,31 +69,31 @@ object Assembler {
   val commentLineReg: Regex = commentGroup.r("comment")
   val bytePosGroup: String = raw"\s*(\d+)\:\s*"
   val createLabelGroup: String = raw"(?::(\w+))?"
-  val paramGroup: String = raw"\s*[\s,]\s*((?:(\@)?(-?\d+)|\@(\w+))(\+B)?)" + createLabelGroup
+  val paramGroup: String = raw"\s*[\s,]\s*(\@)?((?:(-?\d+)|([A-Za-z]\w+))(\+B)?)" + createLabelGroup
   val op0lineGroupReg: Regex =
     (bytePosGroup + "(NOP0|END)" + createLabelGroup + commentAfterGroup)
       .r("bytePos", "op", "opLabel", "comment")
   val op1lineGroupReg: Regex =
     (bytePosGroup + "(NOP1|IN|OUT|INCB)" + createLabelGroup + paramGroup + commentAfterGroup)
       .r("bytePos", "op", "opLabel",
-        "param", "positional", "number", "referencedLabel", "relative", "createdLabel", "comment")
+        "positional", "param", "number", "referencedLabel", "relative", "createdLabel", "comment")
   val op2lineGroupReg: Regex =
     (bytePosGroup + "(NOP2|JNEZ|JEQZ)" + createLabelGroup + paramGroup + paramGroup + commentAfterGroup)
       .r("bytePos", "op", "opLabel",
-        "param1", "positional1", "number1", "referencedLabel1", "relative1", "createdLabel1",
-        "param2", "positional2", "number2", "referencedLabel2", "relative2", "createdLabel2", "comment")
+        "positional1", "param1", "number1", "referencedLabel1", "relative1", "createdLabel1",
+        "positional2", "param2", "number2", "referencedLabel2", "relative2", "createdLabel2", "comment")
   val op3lineGroupReg: Regex =
     (bytePosGroup + "(NOP3|ADD|MULT|LESS|EQ)" + createLabelGroup + paramGroup + paramGroup + paramGroup + commentAfterGroup)
       .r("bytePos", "op", "opLabel",
-        "param1", "positional1", "number1", "referencedLabel1", "relative1", "createdLabel1",
-        "param2", "positional2", "number2", "referencedLabel2", "relative2", "createdLabel2",
-        "param3", "positional3", "number3", "referencedLabel3", "relative3", "createdLabel3", "comment")
+        "positional1", "param1", "number1", "referencedLabel1", "relative1", "createdLabel1",
+        "positional2", "param2", "number2", "referencedLabel2", "relative2", "createdLabel2",
+        "positional3", "param3", "number3", "referencedLabel3", "relative3", "createdLabel3", "comment")
 
   var labelMap: Map[String, Int] = Map.empty
 
   def rawParamWithSuffix(g: MatchIterator, suffix: String): RawParam = {
     val m: Mode.Value = {
-      val positional: Boolean = g.group("positional" + suffix) != null || g.group("referencedLabel" + suffix) != null
+      val positional: Boolean = g.group("positional" + suffix) != null
       val relative: Boolean = g.group("relative" + suffix) != null
       if (!positional && !relative) Mode.Immediate
       else if (positional && !relative) Mode.Positional
@@ -150,7 +150,7 @@ object Assembler {
       addLabels(g, Set(("1", memoryPos + 1), ("2", memoryPos + 2), ("3", memoryPos + 3)))
       RawOpLine(opLookup(g.group("op")), Seq(p1, p2, p3), memoryPos, memoryPos + 4)
     }
-    else throw new IllegalArgumentException("Unable to parseLines line: " + line)
+    else throw new IllegalArgumentException("Unable to parseLine line: " + line)
   }
 
   def parseLines(lines: Seq[String], curMemoryPosition: Int = 0, lineNumber: Int = 0): Seq[RawOpLine] = {

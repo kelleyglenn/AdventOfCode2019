@@ -47,7 +47,7 @@ class AssemblerTest extends AnyFlatSpec {
     assert(regEx.findAllIn(line1).group("bytePos") == "1")
     assert(regEx.findAllIn(line1).group("op") == "NOP1")
     assert(regEx.findAllIn(line1).group("opLabel") == "start")
-    assert(regEx.findAllIn(line1).group("param") == "@123+B")
+    assert(regEx.findAllIn(line1).group("param") == "123+B")
     assert(regEx.findAllIn(line1).group("positional") == "@")
     assert(regEx.findAllIn(line1).group("number") == "123")
     assert(regEx.findAllIn(line1).group("referencedLabel") == null)
@@ -59,8 +59,8 @@ class AssemblerTest extends AnyFlatSpec {
     assert(regEx.findAllIn(line2).group("bytePos") == "2")
     assert(regEx.findAllIn(line2).group("op") == "IN")
     assert(regEx.findAllIn(line2).group("opLabel") == null)
-    assert(regEx.findAllIn(line2).group("param") == "@end+B")
-    assert(regEx.findAllIn(line2).group("positional") == null)
+    assert(regEx.findAllIn(line2).group("param") == "end+B")
+    assert(regEx.findAllIn(line2).group("positional") == "@")
     assert(regEx.findAllIn(line2).group("number") == null)
     assert(regEx.findAllIn(line2).group("referencedLabel") == "end")
     assert(regEx.findAllIn(line2).group("relative") == "+B")
@@ -79,14 +79,14 @@ class AssemblerTest extends AnyFlatSpec {
     assert(regEx.findAllIn(line1).group("bytePos") == "1")
     assert(regEx.findAllIn(line1).group("op") == "JNEZ")
     assert(regEx.findAllIn(line1).group("opLabel") == "start")
-    assert(regEx.findAllIn(line1).group("param1") == "@123+B")
+    assert(regEx.findAllIn(line1).group("param1") == "123+B")
     assert(regEx.findAllIn(line1).group("positional1") == "@")
     assert(regEx.findAllIn(line1).group("number1") == "123")
     assert(regEx.findAllIn(line1).group("referencedLabel1") == null)
     assert(regEx.findAllIn(line1).group("relative1") == "+B")
     assert(regEx.findAllIn(line1).group("createdLabel1") == null)
-    assert(regEx.findAllIn(line1).group("param2") == "@tgt")
-    assert(regEx.findAllIn(line1).group("positional2") == null)
+    assert(regEx.findAllIn(line1).group("param2") == "tgt")
+    assert(regEx.findAllIn(line1).group("positional2") == "@")
     assert(regEx.findAllIn(line1).group("number2") == null)
     assert(regEx.findAllIn(line1).group("referencedLabel2") == "tgt")
     assert(regEx.findAllIn(line1).group("relative2") == null)
@@ -106,7 +106,7 @@ class AssemblerTest extends AnyFlatSpec {
     assert(regEx.findAllIn(line1).group("bytePos") == "1")
     assert(regEx.findAllIn(line1).group("op") == "ADD")
     assert(regEx.findAllIn(line1).group("opLabel") == "start")
-    assert(regEx.findAllIn(line1).group("param1") == "@123+B")
+    assert(regEx.findAllIn(line1).group("param1") == "123+B")
     assert(regEx.findAllIn(line1).group("positional1") == "@")
     assert(regEx.findAllIn(line1).group("number1") == "123")
     assert(regEx.findAllIn(line1).group("referencedLabel1") == null)
@@ -118,8 +118,8 @@ class AssemblerTest extends AnyFlatSpec {
     assert(regEx.findAllIn(line1).group("referencedLabel2") == null)
     assert(regEx.findAllIn(line1).group("relative2") == null)
     assert(regEx.findAllIn(line1).group("createdLabel2") == null)
-    assert(regEx.findAllIn(line1).group("param3") == "@tgt")
-    assert(regEx.findAllIn(line1).group("positional3") == null)
+    assert(regEx.findAllIn(line1).group("param3") == "tgt")
+    assert(regEx.findAllIn(line1).group("positional3") == "@")
     assert(regEx.findAllIn(line1).group("number3") == null)
     assert(regEx.findAllIn(line1).group("referencedLabel3") == "tgt")
     assert(regEx.findAllIn(line1).group("relative3") == null)
@@ -164,6 +164,7 @@ class AssemblerTest extends AnyFlatSpec {
     assert(Assembler.assemble(Seq(" 0: ADD 1, 5, @2")) == Seq(1101, 1, 5, 2))
     assert(Assembler.assemble(Seq(" 0: ADD 1, 5:dest, @dest")) == Seq(1101, 1, 5, 2))
     assert(Assembler.assemble(Seq(" 0: ADD @dest, 5:dest, @10")) == Seq(1001, 2, 5, 10))
+    assert(Assembler.assemble(Seq(" 0: JNEZ 5:dest, dest")) == Seq(1105, 5, 1))
   }
 
   it should "disallow +B without @" in {
@@ -179,14 +180,17 @@ class AssemblerTest extends AnyFlatSpec {
   }
 
   it should "handle multiple lines" in {
-    val lines:Seq[String] = Seq(
-      " 0: INCB 1",
-      " 2: OUT @-1+B",
+    val lines: Seq[String] = Seq(
+      "; This example results in the following machine code",
+      "; 109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,100,0,6,101,0,99",
+      " 0: INCB:begin 1       ; this label is at position 0, so it is given then value 0",
+      " 2: OUT @-1+B          ; this parameter evaluates to the value at position (-1 + the relative base)",
       " 4: ADD @100 1 @100",
       " 8: EQ @100 16 @101",
-      "12: JEQZ @101, 0",
-      "15: END"
+      "12: JEQZ @100, begin   ; this label revolves to an immediate parameter with the value 0",
+      "15: JEQZ @101, @begin  ; this label resolves to a positional parameter with the value 0",
+      "18: END",
     )
-    assert(Assembler.assemble(lines) == Seq(109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99))
+    assert(Assembler.assemble(lines) == Seq(109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 100, 0, 6, 101, 0, 99))
   }
 }
